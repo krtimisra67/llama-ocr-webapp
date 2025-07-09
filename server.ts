@@ -9,7 +9,7 @@ import { ocr } from "./src/index";
 dotenv.config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const upload = multer({ dest: "uploads/" });
 
 app.use(express.static("public"));

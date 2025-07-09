@@ -1,47 +1,115 @@
 <div align="center">
-  <div>
-    <h1 align="center">Llama OCR</h1>
-  </div>
-	<p>An npm library to run OCR for free with Llama 3.2 Vision.</p>
+  <h1>🔍 OCR WebApp with Text-to-Speech</h1>
+  <p>A modern web app to extract text from images using LLaMA 3.2 Vision + Together AI, with audio output, compression, and a sleek UI.</p>
 
-<a href="https://www.npmjs.com/package/llama-ocr"><img src="https://img.shields.io/npm/v/llama-ocr" alt="Current version"></a>
-
+  <img src="https://img.shields.io/badge/Built%20With-Tailwind%20CSS-blueviolet" />
+  <img src="https://img.shields.io/badge/Powered%20By-Together%20AI-red" />
+  <img src="https://img.shields.io/github/license/krtimisra67/llama-ocr-webapp" />
 </div>
 
 ---
 
-## Installation
+## 🚀 Features
 
-`npm i llama-ocr`
+- 🧠 Free OCR using **LLaMA 3.2 Vision**
+- 🖼️ Live image preview before processing
+- 📉 Auto compression for large images (>2MB)
+- 🎙️ Built-in text-to-speech (read aloud extracted text)
+- 💾 Download extracted text as `.txt`
+- 🌐 Eye-catching Tailwind-powered UI
+- 🛠️ Easy deploy & run locally or on Render
 
-## Usage
+---
 
-```js
-import { ocr } from "llama-ocr";
+## 📦 Installation
 
-const markdown = await ocr({
-  filePath: "./trader-joes-receipt.jpg", // path to your image (soon PDF!)
-  apiKey: process.env.TOGETHER_API_KEY, // Together AI API key
-});
-```
-## Hosted Demo
+### 1. Clone the Repository
 
-We have a hosted demo at [LlamaOCR.com](https://llamaocr.com/) where you can try it out!
+bash
+git clone https://github.com/krtimisra67/llama-ocr-webapp.git
+cd llama-ocr-webapp
 
-## How it works
+### Install Dependencies
+npm install
 
-This library uses the free Llama 3.2 endpoint from [Together AI](https://togetherai.link/) to parse images and return markdown. Paid endpoints for Llama 3.2 11B and Llama 3.2 90B are also available for faster performance and higher rate limits.
 
-You can control this with the `model` option which is set to `Llama-3.2-90B-Vision` by default but can also accept `free` or `Llama-3.2-11B-Vision`.
+### Set up API Key
+TOGETHER_API_KEY=your_api_key_here
 
-## Roadmap
 
-- [x] Add support for local images OCR
-- [x] Add support for remote images OCR
-- [ ] Add support for single page PDFs
-- [ ] Add support for multi-page PDFs OCR (take screenshots of PDF & feed to vision model)
-- [ ] Add support for JSON output in addition to markdown
+### Run Locally
+npm start
+App runs at: http://localhost:3000
 
-## Credit
+### Folder Structure
+llama-ocr-webapp/
+├── public/               # Frontend: HTML, Tailwind, JS
+│   └── index.html
+├── src/
+│   └── index.ts          # OCR Logic with Together API
+├── server.ts             # Express server
+├── .env                  # API Key config
+├── package.json
+└── README.md
 
-This project was inspired by [Zerox](https://github.com/getomni-ai/zerox). Go check them out!
+
+### How it Works
+ 1   User uploads an image (preview shown)
+
+ 2   App resizes it if it exceeds 2MB
+
+ 3  Sends image to Together AI's LLaMA 3.2 Vision model
+
+ 4   Receives Markdown/Plain text
+
+ 5   Displays clean output + reads aloud with browser TTS
+
+ 6   Option to download text as .txt
+
+
+
+### Road Map
+OCR from local image
+
+Plain text & markdown cleaning
+
+Live preview before upload
+
+Text-to-speech (read aloud)
+
+Auto compression for >2MB images
+
+PDF upload support
+
+Drag-and-drop upload
+
+Multi-language TTS
+
+JSON output toggle
+
+--- 
+
+## 🙏 Acknowledgements
+
+This project is based on the original concept of [`llama-ocr`](https://github.com/Nutlope/llama-ocr) by Nutlope.
+
+While the OCR logic using LLaMA 3.2 Vision API remains similar, this is **not a fork** but a **custom implementation and UI built from a clean clone**.
+
+### ✨ Key Enhancements in This Version:
+- 🌐 Web-based UI with Tailwind CSS
+- 🖼️ Live image upload preview
+- 📉 Automatic compression for files >2MB
+- 🧠 OCR integration using Together AI
+- 🎙️ Text-to-speech for reading aloud extracted text
+- 💾 Option to download extracted text
+- 📦 Packaged as a full-stack app with Express backend
+
+---
+
+## 👩‍💻 Developed By
+
+**Kriti Misra**  
+Computer Science student at ANDC, University of Delhi  
+[GitHub](https://github.com/krtimisra67) | ✉️ Kritimisra87@gmail.com
+
+---

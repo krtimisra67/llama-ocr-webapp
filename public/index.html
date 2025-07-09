@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🧠 OCR Text Reader</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-indigo-100 to-pink-100 min-h-screen font-sans">
+  <div class="container mx-auto px-4 py-10 max-w-4xl">
+    <div class="bg-white shadow-2xl rounded-3xl p-8 transition-all">
+      <h1 class="text-3xl font-bold text-indigo-600 mb-6 text-center">🧠 OCR Text Reader</h1>
+
+      <!-- 🔲 Upload Box with Preview -->
+      <div class="border-4 border-dashed border-indigo-300 rounded-xl p-6 mb-6 bg-indigo-50">
+        <form id="uploadForm" class="flex flex-col space-y-4 items-center">
+          <input type="file" id="imageInput" accept="image/*" required
+            class="text-sm text-gray-700 bg-white rounded-md border border-gray-300 w-full max-w-sm cursor-pointer file:bg-indigo-100 file:border-0 file:text-indigo-600 file:rounded-md">
+          <button type="submit"
+            class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition duration-300">
+            📤 Upload & Extract Text
+          </button>
+        </form>
+
+        <!-- 👁️ Image Preview -->
+        <div class="mt-6 text-center">
+          <h2 class="font-medium text-gray-700 mb-2">🖼️ Image Preview</h2>
+          <img id="previewImage" src="" alt="Uploaded image will appear here"
+            class="mx-auto max-h-64 rounded-lg shadow-lg hidden" />
+        </div>
+      </div>
+
+      <!-- 📄 OCR Output -->
+      <div class="mt-8">
+        <h2 class="text-lg font-semibold text-gray-800 mb-2">📝 OCR Output:</h2>
+        <pre id="output"
+          class="bg-gray-50 border border-dashed border-gray-400 rounded-xl p-4 text-sm text-gray-800 h-48 overflow-y-auto">Waiting for image upload...</pre>
+      </div>
+
+      <!-- 🔊 TTS Controls -->
+      <div class="mt-6 space-y-4">
+        <h2 class="text-lg font-semibold text-gray-800">🎙️ Read Aloud Controls</h2>
+
+        <div>
+          <label for="voiceSelect" class="block text-sm font-medium text-gray-700">Voice:</label>
+          <select id="voiceSelect" class="w-full border border-gray-300 rounded-lg p-2"></select>
+        </div>
+
+        <div>
+          <label for="rateRange" class="block text-sm font-medium text-gray-700">Speed:
+            <span id="rateValue" class="text-indigo-600 font-semibold">1.0x</span></label>
+          <input type="range" min="0.5" max="2" value="1" step="0.1"
+            class="w-full mt-1 accent-indigo-600" id="rateRange" />
+        </div>
+
+        <div class="flex flex-wrap gap-4">
+          <button id="speakBtn" disabled
+            class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition">
+            🔊 Read Aloud
+          </button>
+          <button id="downloadBtn" disabled
+            class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition">
+            💾 Download Text
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let resizedBlob = null;
+    const maxSize = 2 * 1024 * 1024;
+    const maxWidth = 1024;
+    const maxHeight = 1024;
+    const voiceSelect = document.getElementById("voiceSelect");
+    const speakBtn = document.getElementById("speakBtn");
+    const rateRange = document.getElementById("rateRange");
+    const rateValue = document.getElementById("rateValue");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const previewImage = document.getElementById("previewImage");
+    let ocrText = "";
+
+    // 🔊 Load TTS Voices
+    function populateVoices() {
+      const voices = speechSynthesis.getVoices();
+      voiceSelect.innerHTML = "";
+      voices.forEach(voice => {
+        const option = document.createElement("option");
+        option.textContent = `${voice.name} (${voice.lang})`;
+        option.value = voice.name;
+        voiceSelect.appendChild(option);
+      });
+    }
+    populateVoices();
+    speechSynthesis.onvoiceschanged = populateVoices;
+
+    // 🖼️ Image Upload & Resize
+    document.getElementById("imageInput").addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Show Preview
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        previewImage.src = e.target.result;
+        previewImage.classList.remove("hidden");
+      };
+      reader.readAsDataURL(file);
+
+      // Resize if needed
+      if (file.size <= maxSize) {
+        resizedBlob = file;
+        return;
+      }
+
+      const img = new Image();
+      reader.onload = () => img.src = reader.result;
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ratio = Math.min(maxWidth / img.width, maxHeight / img.height);
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob(blob => {
+          resizedBlob = blob;
+        }, "image/jpeg", 0.9);
+      };
+    });
+
+    // 🧠 OCR Upload + Display
+    document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData();
+
+      if (!resizedBlob) {
+        alert("Please select an image first.");
+        return;
+      }
+
+      formData.append("image", resizedBlob, "resized.jpg");
+
+      const response = await fetch("/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      const outputEl = document.getElementById("output");
+
+      if (data.success) {
+        ocrText = data.text;
+        outputEl.textContent = ocrText;
+        speakBtn.disabled = false;
+        downloadBtn.disabled = false;
+      } else {
+        outputEl.textContent = "❌ Error: " + data.error;
+        speakBtn.disabled = true;
+        downloadBtn.disabled = true;
+      }
+    });
+
+    // 🔊 Speak
+    speakBtn.addEventListener("click", () => {
+      const utterance = new SpeechSynthesisUtterance(ocrText);
+      const voices = speechSynthesis.getVoices();
+      const selectedVoice = voices.find(v => v.name === voiceSelect.value);
+      if (selectedVoice) utterance.voice = selectedVoice;
+      utterance.rate = parseFloat(rateRange.value);
+      speechSynthesis.speak(utterance);
+    });
+
+    // 🎚️ Speed Slider
+    rateRange.addEventListener("input", () => {
+      rateValue.textContent = rateRange.value;
+    });
+
+    // 💾 Download
+    downloadBtn.addEventListener("click", () => {
+      const blob = new Blob([ocrText], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "ocr-output.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>

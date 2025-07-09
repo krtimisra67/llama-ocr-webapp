@@ -1,0 +1,7 @@
+The written text in the image is:
+code
+data
+files
+registers
+stack
+thread

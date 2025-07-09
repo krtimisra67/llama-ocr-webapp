@@ -3,9 +3,12 @@
     "target": "es2020",
     "module": "commonjs",
     "outDir": "./dist",
+    "rootDir": ".",                          // ✅ Ensures all TS files compile
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+    "strict": true                           // ✅ Optional, enforces type safety
+  },
+  "include": ["server.ts", "src/**/*"]       // ✅ Add all TS files to be compiled
 }

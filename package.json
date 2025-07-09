@@ -2,14 +2,14 @@
   "name": "llama-ocr",
   "version": "0.0.6",
   "description": "Image to markdown (OCR) with Llama 3.2 Vision.",
-  "author": "Hassan El Mghari (@nutlope)",
+  "author": "Kriti Misra (@krtimisra67)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Nutlope/llama-ocr.git"
+    "url": "git+https://github.com/krtimisra67/llama-ocr.git"
   },
   "license": "MIT",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/server.js",
+  "types": "dist/server.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "tsx ./test/index.ts",
@@ -32,6 +32,8 @@
     "dotenv": "^17.0.1",
     "sharp": "^0.34.2",
     "together-ai": "^0.9.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "express": "^4.18.2",
+    "multer": "^1.4.5"
   }
 }
